@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Beyond the Textbook – Vocabulary Games</title>
+<style>
+:root{--bg1:#16163a;--bg2:#2b1a5e;--card:#ffffff14;--line:#ffffff26;--tx:#f5f4ff;--mut:#b9b6e0;--yel:#ffd23f;--grn:#3ddc97;--red:#ff6b6b;--cy:#4cc9f0;--pk:#f72585}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:var(--tx);background:linear-gradient(160deg,var(--bg1),var(--bg2));padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+#app{max-width:760px;margin:0 auto;padding:14px}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.brand{font-weight:800;font-size:18px;letter-spacing:.2px}.brand span{color:var(--yel)}
+.hud{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px}
+.hud div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 4px;text-align:center;font-size:12px;color:var(--mut)}
+.hud b{display:block;font-size:20px;color:var(--tx)}
+.bar{height:10px;background:#ffffff1f;border-radius:9px;overflow:hidden;margin-bottom:14px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--grn));transition:width .5s}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+h1,h2{margin:0 0 8px}h1{font-size:30px}h2{font-size:24px}
+p{line-height:1.5;margin:6px 0}.mut{color:var(--mut)}
+.btn{font:inherit;font-weight:800;border:0;border-radius:14px;padding:13px 20px;cursor:pointer;color:#1a1033;background:var(--yel);box-shadow:0 4px 0 #b8941b;transition:transform .1s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #b8941b}
+.btn.alt{background:#ffffff22;color:var(--tx);box-shadow:0 4px 0 #0004}
+.btn:focus-visible,input:focus-visible,.opt:focus-visible{outline:3px solid var(--cy);outline-offset:2px}
+.menu{display:grid;gap:12px;margin-top:14px}
+.gcard{display:flex;gap:14px;align-items:center;text-align:left;width:100%;background:#ffffff1a;border:1px solid var(--line);color:var(--tx);border-radius:16px;padding:16px;font:inherit;cursor:pointer}
+.gcard:hover{border-color:var(--yel)}.gcard em{font-size:34px;font-style:normal}.gcard b{font-size:18px;display:block}
+.hide{display:none!important}
+/* Game 1 */
+.scene{position:relative;height:150px;border-radius:16px;background:linear-gradient(#0e0e2b,#241a52);overflow:hidden;margin-bottom:12px;border:1px solid var(--line)}
+.ship{position:absolute;left:14px;top:50%;font-size:44px;transform:translateY(-50%)}
+.target{position:absolute;right:30px;top:50%;font-size:56px;transform:translateY(-50%);transition:transform .3s}
+.target.in{animation:pop .4s}
+.target.boom{animation:boom .5s forwards}
+.target.shake{animation:shake .4s}
+.bullet{position:absolute;left:70px;top:50%;font-size:22px;transform:translateY(-50%);opacity:0}
+.say{text-align:center;margin:6px 0 12px}.say small{color:var(--mut)}
+.say .big{font-size:32px;font-weight:800;color:var(--yel);margin-top:2px}
+.row{display:flex;gap:8px}
+input[type=text]{flex:1;min-width:0;font:inherit;font-size:20px;padding:12px 14px;border-radius:12px;border:2px solid var(--line);background:#0b0b26;color:var(--tx)}
+.fb{min-height:54px;margin-top:12px;text-align:center;font-size:18px;font-weight:700}
+.fb.ok{color:var(--grn)}.fb.no{color:var(--yel)}
+.fb small{display:block;font-weight:400;color:var(--mut);font-size:14px;margin-top:2px}
+/* Game 2 */
+.sent{font-size:22px;line-height:1.45;margin:4px 0 16px}
+.sent u{display:inline-block;min-width:90px;border-bottom:3px dashed var(--yel);text-decoration:none;text-align:center;color:var(--yel)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{font:inherit;font-size:18px;font-weight:700;text-align:left;padding:14px;border-radius:14px;border:2px solid var(--line);background:#ffffff14;color:var(--tx);cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--cy)}
+.opt.right{background:#3ddc9733;border-color:var(--grn);animation:pop .4s}
+.opt.wrong{background:#ff6b6b33;border-color:var(--red);animation:shake .4s}
+/* result */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.stats div{background:#ffffff14;border-radius:12px;padding:10px 4px;text-align:center;font-size:12px;color:var(--mut)}
+.stats b{display:block;font-size:22px;color:var(--tx)}
+.stars{font-size:34px;margin:6px 0}
+.btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.xp{position:fixed;pointer-events:none;font-weight:800;font-size:26px;color:var(--yel);animation:rise 1s forwards;text-shadow:0 2px 8px #000a;left:50%;top:38%;transform:translateX(-50%)}
+.hud b.bump{animation:pop .4s}
+@keyframes pop{50%{transform:translateY(-50%) scale(1.25)}}
+.hud b.bump,.opt.right{--x:1}
+@keyframes boom{to{transform:translateY(-50%) scale(2.2) rotate(40deg);opacity:0}}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@keyframes rise{to{transform:translate(-50%,-90px);opacity:0}}
+h3{margin:16px 0 6px;color:var(--yel)}
+.gcard small{color:var(--mut);display:block;font-size:13px}
+.menu .gcard{margin:0}.linkb{background:none;border:0;color:var(--mut);font:inherit;font-size:13px;cursor:pointer;text-decoration:underline}
+.foot{text-align:center;margin-top:16px}
+.lrow,.trow{background:#ffffff12;border:1px solid var(--line);border-radius:14px;padding:12px;margin:8px 0}
+.lrow b,.trow b{font-size:17px}.trow small{display:block;color:var(--mut)}
+.btns.l{justify-content:flex-start}.btn.sm{padding:7px 12px;font-size:13px;box-shadow:0 3px 0 #b8941b}.btn.alt.sm{box-shadow:0 3px 0 #0004}
+.btn.dng{background:var(--red);box-shadow:0 3px 0 #a33}
+.tf label{display:block;font-weight:700;margin:12px 0 4px}
+.tf input,.tf select,.tf textarea{width:100%;font:inherit;font-size:16px;padding:10px;border-radius:10px;border:2px solid var(--line);background:#0b0b26;color:var(--tx)}
+.note{background:#3ddc9722;border:1px solid var(--grn);border-radius:12px;padding:10px;margin:10px 0}.note.warn{background:#ffd23f22;border-color:var(--yel)}
+pre{white-space:pre-wrap;word-break:break-word;background:#0b0b26;padding:10px;border-radius:10px;font-size:13px}
+@media(max-width:520px){.opts{grid-template-columns:1fr}.sent{font-size:19px}h1{font-size:25px}.say .big{font-size:26px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top"><div class="brand">🎧 Beyond the <span>Textbook</span></div><button class="linkb hide" id="homeb" onclick="home()">← Lessons</button><div class="mut" id="tag"></div></div>
+
+  <div id="hudwrap" class="hide">
+    <div class="hud">
+      <div>Question<b id="hq">1/10</b></div>
+      <div>🏆 Score<b id="hs">0</b></div>
+      <div>⚡ XP<b id="hx">0</b></div>
+      <div>🔥 Streak<b id="hk">0</b></div>
+    </div>
+    <div class="bar"><i id="pb"></i></div>
+  </div>
+
+  <!-- MENU: lessons -->
+  <section id="menu" class="panel">
+    <h1>Choose your lesson</h1>
+    <p class="mut">Pick a lesson, then play. No login needed.</p>
+    <div id="lessons"></div>
+    <div class="foot"><button class="linkb" onclick="pinOpen()">Teacher</button>
+      <div id="pinbox" class="hide row" style="margin-top:8px"><input type="password" id="pin" placeholder="Teacher PIN" aria-label="Teacher PIN"><button class="btn sm" onclick="pinGo()">OPEN</button></div></div>
+  </section>
+
+  <section id="lesson" class="panel hide">
+    <div id="lsinfo"></div>
+    <div class="menu">
+      <button class="gcard" onclick="start(1)"><em>🚀</em><span><b>Vocabulary Attack</b><span class="mut">Read the Vietnamese meaning. Type the English word.</span></span></button>
+      <button class="gcard" onclick="start(2)"><em>🧩</em><span><b>Word in Context</b><span class="mut">Read the sentence. Choose the word that fits.</span></span></button>
+    </div>
+    <div class="btns"><button class="btn alt sm" onclick="home()">← All lessons</button></div>
+  </section>
+
+  <section id="teach" class="panel hide tf"></section>
+
+  <!-- GAME 1 -->
+  <section id="g1" class="panel hide">
+    <div class="scene" id="scene"><div class="ship">🚀</div><div class="target" id="tg">🎯</div><div class="bullet" id="bl">💥</div></div>
+    <div class="say"><small>What is the English word for:</small><div class="big" id="vn"></div></div>
+    <div class="row"><input type="text" id="ans" placeholder="Type the English word" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Your answer"><button class="btn" id="fire" onclick="fire()">FIRE!</button></div>
+    <div class="fb" id="fb1"></div>
+  </section>
+
+  <!-- GAME 2 -->
+  <section id="g2" class="panel hide">
+    <p class="mut">Choose the best word for the blank.</p>
+    <div class="sent" id="sent"></div>
+    <div class="opts" id="opts"></div>
+    <div class="fb" id="fb2"></div>
+    <div class="btns"><button class="btn hide" id="nx" onclick="next2()">NEXT</button></div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="res" class="panel hide" style="text-align:center">
+    <div class="stars" id="stars"></div>
+    <h2 id="rt"></h2>
+    <div class="stats">
+      <div>🏆 Final score<b id="rs"></b></div><div>⚡ XP earned<b id="rx"></b></div><div>✅ Correct<b id="rc"></b></div>
+      <div>🎯 Accuracy<b id="ra"></b></div><div>🔥 Best streak<b id="rk"></b></div><div>⭐ Level<b id="rl"></b></div>
+    </div>
+    <p id="rm"></p>
+    <div class="btns"><button class="btn" onclick="start(cur)">PLAY AGAIN</button><button class="btn alt" id="rn" onclick="goNext()"></button></div>
+  </section>
+</div>
+
+<script type="application/json" id="lesson-data">{"rev": 1, "pin": "1234", "lessons": [{"id": "store", "title": "A Day at the Store", "level": "A2", "topic": "Shopping", "description": "Everyday English used in a store.", "vocabulary": [{"word": "counter", "meaning": "quầy", "example": "She is standing by the counter.", "distractors": ["cashier", "customer", "receipt"]}, {"word": "cashier", "meaning": "thu ngân", "example": "The cashier checked the money.", "distractors": ["customer", "counter", "receipt"]}, {"word": "customer", "meaning": "khách hàng", "example": "The customer is waiting in line.", "distractors": ["cashier", "receipt", "counter"]}, {"word": "receipt", "meaning": "biên lai", "example": "Keep the receipt if you want to return it.", "distractors": ["counter", "cashier", "customer"]}, {"word": "price", "meaning": "giá cả", "example": "The price of this jacket is too high.", "distractors": ["discount", "basket", "size"]}, {"word": "discount", "meaning": "giảm giá", "example": "There is a 20% discount on shoes today.", "distractors": ["price", "receipt", "size"]}, {"word": "basket", "meaning": "giỏ hàng", "example": "She put the apples in the basket.", "distractors": ["counter", "receipt", "price"]}, {"word": "size", "meaning": "kích cỡ", "example": "Do you have this shirt in a bigger size?", "distractors": ["price", "discount", "basket"]}]}, {"id": "rest", "title": "At the Restaurant", "level": "A2", "topic": "Food", "description": "Words for ordering a meal.", "vocabulary": [{"word": "menu", "meaning": "thực đơn", "example": "Can I see the menu please?", "distractors": ["waiter", "order", "bill"]}, {"word": "waiter", "meaning": "người phục vụ", "example": "The waiter brought us some water.", "distractors": ["menu", "order", "bill"]}, {"word": "order", "meaning": "gọi món", "example": "We are ready to order now.", "distractors": ["menu", "waiter", "bill"]}, {"word": "bill", "meaning": "hóa đơn", "example": "Could we have the bill please?", "distractors": ["menu", "waiter", "order"]}, {"word": "dessert", "meaning": "món tráng miệng", "example": "I would like chocolate cake for dessert.", "distractors": ["menu", "bill", "order"]}]}, {"id": "air", "title": "At the Airport", "level": "A2", "topic": "Travel", "description": "Words you hear when you travel by plane.", "vocabulary": [{"word": "luggage", "meaning": "hành lý", "example": "My luggage is very heavy.", "distractors": ["passenger", "flight", "gate"]}, {"word": "passenger", "meaning": "hành khách", "example": "Every passenger must show a passport.", "distractors": ["luggage", "flight", "gate"]}, {"word": "boarding pass", "meaning": "thẻ lên máy bay", "example": "Please show your boarding pass at the gate.", "distractors": ["luggage", "passenger", "flight"]}, {"word": "flight", "meaning": "chuyến bay", "example": "Our flight leaves at nine o'clock.", "distractors": ["luggage", "passenger", "gate"]}, {"word": "gate", "meaning": "cổng ra máy bay", "example": "Go to gate twelve and wait there.", "distractors": ["flight", "luggage", "passenger"]}]}, {"id": "start", "title": "Listening Starter Words", "level": "B1", "topic": "General", "description": "Useful words from authentic listening texts.", "vocabulary": [{"word": "environment", "meaning": "môi trường", "example": "Governments should take action to protect the environment from pollution.", "distractors": ["economy", "equipment", "entertainment"]}, {"word": "equipment", "meaning": "thiết bị, dụng cụ", "example": "The gym has new equipment, so more students are joining.", "distractors": []}, {"word": "economy", "meaning": "nền kinh tế", "example": "Tourism is very important for the economy of this small town.", "distractors": []}, {"word": "experiment", "meaning": "thí nghiệm", "example": "In science class, we did an experiment with water and salt.", "distractors": []}, {"word": "advantage", "meaning": "lợi thế, ưu điểm", "example": "Speaking two languages is a big advantage when you look for a job.", "distractors": []}, {"word": "disadvantage", "meaning": "bất lợi, nhược điểm", "example": "One disadvantage of living in the city is the noise.", "distractors": []}, {"word": "opinion", "meaning": "ý kiến, quan điểm", "example": "In my opinion, learning English with podcasts is fun.", "distractors": []}, {"word": "improve", "meaning": "cải thiện", "example": "I listen to English every day to improve my skills.", "distractors": []}, {"word": "necessary", "meaning": "cần thiết", "example": "It is necessary to sleep well before an exam.", "distractors": []}, {"word": "suggest", "meaning": "đề xuất, gợi ý", "example": "The teacher suggested watching short videos every day.", "distractors": []}, {"word": "popular", "meaning": "phổ biến, được yêu thích", "example": "This singer is very popular with teenagers.", "distractors": []}]}]}</script>
+<script id="app-js">
+const SRC=(()=>{const c=document.documentElement.cloneNode(true);c.querySelectorAll("script").forEach(x=>{if(x.id!=="app-js"&&x.id!=="lesson-data")x.remove()});return c})();
+/* Lessons and vocabulary are NOT stored here any more.
+   Manage them in Teacher Mode (footer link "Teacher"). Default PIN: 1234 */
+const LISTENING_URL = "";   // Paste your listening page URL here for the [BACK TO LISTENING] button. Empty = go to menu.
+const QUESTIONS_PER_ROUND = 10;
+const XP_CORRECT = 20, BONUS_3 = 10, BONUS_5 = 20;
+
+
+const $ = id => document.getElementById(id);
+let LS=null, pool=[], cur=0, qs=[], qi=0, score=0, xp=0, streak=0, best=0, right=0, busy=false;
+
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a };
+const norm = s => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[-_]/g," ").replace(/[^a-z0-9' ]/g,"").replace(/\s+/g," ").trim();
+const esc = s => s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const show = id => {["menu","lesson","g1","g2","res","teach"].forEach(x=>$(x).classList.toggle("hide",x!==id)); $("homeb").classList.toggle("hide",id==="menu"||id==="teach")};
+
+function hud(){
+  const total=qs.length;
+  $("hq").textContent=Math.min(qi+1,total)+"/"+total;
+  $("hs").textContent=score; $("hx").textContent=xp; $("hk").textContent=streak+(streak>1?" 🔥":"");
+  $("pb").style.width=(qi/total*100)+"%";
+}
+function bump(){["hs","hx","hk"].forEach(i=>{const e=$(i);e.classList.remove("bump");void e.offsetWidth;e.classList.add("bump")})}
+function floatXP(t){const e=document.createElement("div");e.className="xp";e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),1000)}
+
+/* award points for a correct answer, return text like "+30 XP" */
+function award(){
+  right++; streak++; best=Math.max(best,streak); score+=100;
+  let g=XP_CORRECT, note="";
+  if(streak===3){g+=BONUS_3;note=" (3 in a row bonus!)"}
+  if(streak===5){g+=BONUS_5;note=" (5 in a row bonus!)"}
+  xp+=g; bump(); floatXP("+"+g+" XP");
+  return {g,note};
+}
+
+function start(n){
+  cur=n; pool=LS.vocabulary;
+  const k=Math.min(QUESTIONS_PER_ROUND,pool.length);
+  qs=shuffle(pool).slice(0,k); qi=0; score=xp=streak=best=right=0; busy=false;
+  $("hudwrap").classList.remove("hide"); $("tag").textContent=(n===1?"Vocabulary Attack":"Word in Context");
+  show(n===1?"g1":"g2"); hud();
+  n===1?ask1():ask2();
+}
+
+/* ---------------- GAME 1: VOCABULARY ATTACK ---------------- */
+function ask1(){
+  const q=qs[qi]; busy=false;
+  $("vn").textContent=q.meaning; $("ans").value=""; $("ans").disabled=false; $("fire").disabled=false;
+  $("fb1").className="fb"; $("fb1").innerHTML="";
+  const t=$("tg"); t.className="target"; void t.offsetWidth; t.classList.add("in");
+  hud(); setTimeout(()=>$("ans").focus(),50);
+}
+$("ans").addEventListener("keydown",e=>{if(e.key==="Enter")fire()});
+function shoot(hit){
+  return new Promise(res=>{
+    const b=$("bl"), sc=$("scene"), t=$("tg");
+    const dist=sc.clientWidth-70-100;
+    b.style.transition="none"; b.style.opacity="1"; b.style.transform="translateY(-50%) translateX(0)";
+    void b.offsetWidth;
+    b.style.transition="transform .45s ease-in"; 
+    b.style.transform=hit?"translateY(-50%) translateX("+dist+"px)":"translateY(-160%) translateX("+(dist+80)+"px)";
+    setTimeout(()=>{b.style.opacity="0"; t.className="target "+(hit?"boom":"shake"); setTimeout(res,hit?500:400)},450);
+  });
+}
+async function fire(){
+  if(busy)return; const val=$("ans").value; if(!norm(val)){$("ans").focus();return}
+  busy=true; $("ans").disabled=true; $("fire").disabled=true;
+  const q=qs[qi], ok=norm(val)===norm(q.word), fb=$("fb1");
+  await shoot(ok);
+  if(ok){const a=award(); fb.className="fb ok"; fb.innerHTML="Correct! +"+a.g+" XP"+a.note+"<small>"+esc(q.example)+"</small>"}
+  else{streak=0; fb.className="fb no"; fb.innerHTML="Not quite! The answer is: <u>"+esc(q.word)+"</u><small>Keep going – you can get the next one!</small>"}
+  hud();
+  setTimeout(()=>{qi++; qi>=qs.length?finish():ask1()}, ok?1500:2600);
+}
+
+/* ---------------- GAME 2: WORD IN CONTEXT ---------------- */
+function blank(q){
+  const re=new RegExp(q.word.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"i");
+  return re.test(q.example)?q.example.replace(re,"\u0000"):q.example+" \u0000";
+}
+function ask2(){
+  const q=qs[qi]; busy=false; hud();
+  $("sent").innerHTML=esc(blank(q)).replace("\u0000","<u id='bk'>______</u>");
+  const opts=shuffle([q.word,...choices(q)]).map(w=>({word:w}));
+  $("opts").innerHTML=""; 
+  opts.forEach((o,i)=>{const b=document.createElement("button");b.className="opt";b.textContent=String.fromCharCode(65+i)+". "+o.word;b.onclick=()=>pick(b,o.word===q.word);b.dataset.w=o.word;$("opts").appendChild(b)});
+  $("fb2").className="fb"; $("fb2").innerHTML=""; $("nx").classList.add("hide");
+}
+function pick(btn,ok){
+  if(busy)return; busy=true; const q=qs[qi];
+  document.querySelectorAll(".opt").forEach(b=>{b.disabled=true; if(b.dataset.w===q.word)b.classList.add("right")});
+  $("bk").textContent=q.word;
+  const fb=$("fb2");
+  if(ok){const a=award(); fb.className="fb ok"; fb.innerHTML="Correct! +"+a.g+" XP"+a.note}
+  else{streak=0; btn.classList.add("wrong"); fb.className="fb no"; fb.innerHTML="Not quite. The answer is <u>"+esc(q.word)+"</u><small>“"+esc(q.word)+"” means “"+esc(q.meaning)+"”. It fits this sentence best.</small>"}
+  hud(); $("nx").textContent=qi+1>=qs.length?"SEE RESULTS":"NEXT"; $("nx").classList.remove("hide");
+}
+function next2(){qi++; qi>=qs.length?finish():ask2()}
+
+/* ---------------- RESULT ---------------- */
+function finish(){
+  qi=qs.length; hud();
+  const acc=Math.round(right/qs.length*100);
+  $("rt").textContent=cur===1?"VOCABULARY ATTACK COMPLETE!":"WORD IN CONTEXT COMPLETE!";
+  $("rs").textContent=score; $("rx").textContent=xp; $("rc").textContent=right+"/"+qs.length;
+  $("ra").textContent=acc+"%"; $("rk").textContent=best+" 🔥"; $("rl").textContent=Math.floor(xp/100)+1;
+  $("stars").textContent=acc>=90?"⭐⭐⭐":acc>=60?"⭐⭐":"⭐";
+  $("rm").textContent=cur===1?"Great job! Keep building your English vocabulary!":"Excellent work! You’re learning how to use vocabulary in real contexts.";
+  $("rn").textContent=cur===1?"NEXT GAME":"BACK TO LISTENING";
+  show("res");
+}
+function goNext(){
+  if(cur===1){start(2)}
+  else if(LISTENING_URL){window.open(LISTENING_URL,"_top")}
+  else openLesson(LS.id)
+}
+
+
+/* ================= DATA LAYER ================= */
+function home(){$("tag").textContent="";renderMenu();show("menu");$("hudwrap").classList.add("hide")}
+function choices(q){
+  const seen=new Set([norm(q.word)]),out=[];
+  const add=w=>{w=(w||"").trim();if(w&&!seen.has(norm(w))){seen.add(norm(w));out.push(w)}};
+  (q.distractors||[]).forEach(add);
+  shuffle(LS.vocabulary).forEach(v=>out.length<3&&add(v.word));
+  shuffle(D.lessons.flatMap(l=>l.vocabulary)).forEach(v=>out.length<3&&add(v.word));
+  return out.slice(0,3);
+}
+function loadData(){
+  let b=JSON.parse($("lesson-data").textContent);
+  try{const l=JSON.parse(localStorage.getItem("btt_data_v1")||"null");if(l&&l.rev>b.rev&&Array.isArray(l.lessons))b=l}catch(e){}
+  return b;
+}
+let D=loadData(), dirty=false, msg="", tv={v:"dash"};
+const lesson=id=>D.lessons.find(l=>l.id===id);
+function saveLocal(){D.rev++;dirty=true;try{localStorage.setItem("btt_data_v1",JSON.stringify(D))}catch(e){}}
+function buildHTML(){
+  const c=SRC.cloneNode(true);
+  c.querySelector("#lesson-data").textContent=JSON.stringify(D).replace(/</g,"\\u003c");
+  return "<!DOCTYPE html>\n"+c.outerHTML;
+}
+async function saveFile(name,text){
+  try{if(window.claude&&claude.use){const d=await claude.use("downloads");if(d){await d.save({filename:name,data:text});return "saved"}}}catch(e){if(e&&e.code==="declined")return "declined"}
+  try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"text/plain"}));a.download=name;document.body.appendChild(a);a.click();a.remove();return "saved"}catch(e){return "fail"}
+}
+
+/* ================= STUDENT MENU ================= */
+function renderMenu(){
+  const ls=D.lessons.filter(l=>l.vocabulary.length);
+  const lv=[...new Set(ls.map(l=>l.level))].sort();
+  $("lessons").innerHTML=ls.length?lv.map(L=>"<h3>"+esc(L)+"</h3><div class='menu'>"+ls.filter(l=>l.level===L).map(l=>
+    "<button class='gcard' onclick=\"openLesson('"+l.id+"')\"><em>📘</em><span><b>"+esc(l.title)+"</b><small>"+esc(l.topic)+" · "+l.vocabulary.length+" words</small></span></button>").join("")+"</div>").join("")
+    :"<p class='mut'>No lessons yet. Teachers can add lessons in Teacher Mode.</p>";
+}
+function openLesson(id){
+  LS=lesson(id);$("hudwrap").classList.add("hide");$("tag").textContent="";
+  $("lsinfo").innerHTML="<h2>Lesson: "+esc(LS.title)+"</h2><p><b>Level:</b> "+esc(LS.level)+"<br><b>Vocabulary:</b> "+LS.vocabulary.length+" words</p><p class='mut'>"+esc(LS.description||"")+"</p>";
+  show("lesson");
+}
+
+/* ================= TEACHER MODE ================= */
+function pinOpen(){$("pinbox").classList.remove("hide");$("pin").focus()}
+function pinGo(){if($("pin").value===String(D.pin||"1234")){$("pin").value="";$("pinbox").classList.add("hide");tv={v:"dash"};msg="";T();show("teach")}else{$("pin").value="";$("pin").placeholder="Wrong PIN"}}
+$("pin").addEventListener("keydown",e=>{if(e.key==="Enter")pinGo()});
+const ib=(a,t,id,cls)=>"<button class='btn "+(cls||"sm")+"' data-a='"+a+"'"+(id?" data-id='"+id+"'":"")+">"+t+"</button>";
+const fld=(id,l,v,ph)=>"<label for='"+id+"'>"+l+"</label><input id='"+id+"' value=\""+esc(v||"")+"\" placeholder=\""+esc(ph||"")+"\">";
+const note=()=>msg?"<div class='note'>"+esc(msg)+"</div>":"";
+function arm(a,id,t){const k=a+id;return tv.arm===k?"<button class='btn sm dng' data-a='"+a+"' data-id='"+id+"'>SURE? DELETE</button>":"<button class='btn alt sm' data-a='arm' data-k='"+k+"'>"+t+"</button>"}
+function T(){
+  let h="";const L=lesson(tv.lid);
+  if(tv.v==="dash"){
+    const lv=[...new Set(D.lessons.map(l=>l.level))].sort();
+    h="<h2>TEACHER DASHBOARD</h2>"+note()+(dirty?"<div class='note warn'>Students can’t see your latest changes yet. Click SAVE FOR STUDENTS.</div>":"")+
+    "<div class='btns l'>"+ib("newL","+ NEW LESSON","","")+ib("pub","SAVE FOR STUDENTS","","")+ib("bak","Backup","","alt sm")+"<label class='btn alt sm'>Restore<input type='file' id='rest' accept='.json' hidden></label>"+ib("pinc","Change PIN","","alt sm")+ib("exit","Exit","","alt sm")+"</div>"+
+    (lv.length?lv.map(x=>"<h3>"+esc(x)+"</h3>"+D.lessons.filter(l=>l.level===x).map(l=>"<div class='lrow'><b>"+esc(l.title)+"</b><small class='mut' style='display:block;margin:2px 0 8px'>"+l.vocabulary.length+" vocabulary items · "+esc(l.topic)+"</small><div class='btns l'>"+ib("mv","Manage Vocabulary",l.id,"")+ib("el","Edit Lesson",l.id,"alt sm")+arm("dl",l.id,"Delete")+"</div></div>").join("")).join(""):"<p class='mut'>No lessons yet. Click + NEW LESSON.</p>");
+  }else if(tv.v==="lform"){
+    h="<h2>"+(L?"EDIT LESSON":"NEW LESSON")+"</h2>"+fld("lt","Lesson title",L&&L.title,"A Day at the Store")+
+    "<label for='ll'>Level</label><select id='ll'>"+["A2","B1","B2"].map(x=>"<option"+(L&&L.level===x?" selected":"")+">"+x+"</option>").join("")+"</select>"+
+    fld("lp","Topic",L&&L.topic,"Shopping")+fld("ld","Description",L&&L.description,"Everyday English used in a store.")+note()+
+    "<div class='btns l' style='margin-top:14px'>"+ib("saveL",L?"SAVE LESSON":"CREATE LESSON","","")+ib("dash","Cancel","","alt sm")+"</div>";
+  }else if(tv.v==="vocab"){
+    h="<h2>"+esc(L.title)+"</h2><p class='mut'>"+esc(L.level)+" · "+L.vocabulary.length+" words</p><div class='btns l'>"+ib("newV","+ ADD VOCABULARY","","")+ib("imp","IMPORT VOCABULARY","","alt sm")+ib("dash","← Dashboard","","alt sm")+"</div>"+note()+
+    (L.vocabulary.map((v,i)=>"<div class='trow'><b>"+esc(v.word)+"</b> — "+esc(v.meaning)+"<small>“"+esc(v.example)+"”</small><small>Wrong options: "+esc((v.distractors||[]).filter(Boolean).join(", ")||"(automatic)")+"</small><div class='btns l' style='margin-top:8px'>"+ib("ev","EDIT",i,"alt sm")+arm("dv",i,"DELETE")+"</div></div>").join("")||"<p class='mut'>No words yet.</p>");
+  }else if(tv.v==="vform"){
+    const v=tv.vi>=0?L.vocabulary[tv.vi]:{distractors:[]},d=v.distractors||[];
+    h="<h2>"+(tv.vi>=0?"EDIT WORD":"ADD VOCABULARY")+"</h2><p class='mut'>"+esc(L.title)+"</p>"+fld("vw","English word",v.word,"counter")+fld("vm","Vietnamese meaning",v.meaning,"quầy")+fld("ve","Example sentence (must include the English word)",v.example,"She is standing by the counter.")+fld("d1","Distractor 1",d[0],"cashier")+fld("d2","Distractor 2",d[1],"customer")+fld("d3","Distractor 3",d[2],"receipt")+note()+
+    "<div class='btns l' style='margin-top:14px'>"+ib("saveV",tv.vi>=0?"SAVE WORD":"ADD WORD","","")+ib("mv",tv.vi>=0?"Cancel":"Done",L.id,"alt sm")+"</div>";
+  }else{
+    h="<h2>IMPORT VOCABULARY</h2><p class='mut'>Into: "+esc(L.title)+". Paste one word per line (CSV). You can copy rows straight from Excel or Google Sheets.</p><textarea id='csv' rows='8' placeholder='word,meaning,example,distractor1,distractor2,distractor3'></textarea>"+note()+
+    "<div class='btns l' style='margin-top:12px'>"+ib("doImp","IMPORT","","")+ib("tpl","Download CSV template","","alt sm")+ib("mv",'Back',L.id,"alt sm")+"</div><h3>Format</h3><pre>"+esc(TPL)+"</pre>";
+  }
+  $("teach").innerHTML=h;
+  const r=$("rest");if(r)r.onchange=restore;
+}
+const TPL='word,meaning,example,distractor1,distractor2,distractor3\ncounter,quầy,"She is standing by the counter.",cashier,customer,receipt\ncashier,thu ngân,"The cashier checked the money.",customer,counter,receipt\n';
+function parseCSV(s){
+  s=s.replace(/^\uFEFF/,"");const f=s.split("\n")[0],dl=f.includes("\t")&&!f.includes(",")?"\t":",";
+  const rows=[];let r=[],c="",q=false;
+  for(let i=0;i<s.length;i++){const ch=s[i];
+    if(q){if(ch=='"'){if(s[i+1]=='"'){c+='"';i++}else q=false}else c+=ch}
+    else if(ch=='"')q=true;else if(ch==dl){r.push(c);c=""}
+    else if(ch=="\n"||ch=="\r"){if(ch=="\r"&&s[i+1]=="\n")i++;r.push(c);rows.push(r);r=[];c=""}else c+=ch}
+  r.push(c);rows.push(r);return rows.filter(r=>r.some(x=>x.trim()));
+}
+function restore(e){
+  const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{const x=JSON.parse(rd.result);if(!Array.isArray(x.lessons))throw 0;x.rev=Math.max(x.rev||0,D.rev);D=x;saveLocal();msg="Backup restored.";}catch(er){msg="That file is not a valid backup."}T()};
+  rd.readAsText(f);
+}
+$("teach").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-a]");if(!b)return;
+  const a=b.dataset.a,id=b.dataset.id,v=i=>$(i)?$(i).value.trim():"";msg="";
+  let L=lesson(tv.lid);
+  if(a!=="arm")tv.arm=null;
+  if(a==="arm"){tv.arm=b.dataset.k}
+  else if(a==="dash"){tv={v:"dash"}}
+  else if(a==="exit"){home();return}
+  else if(a==="newL"){tv={v:"lform"}}
+  else if(a==="el"){tv={v:"lform",lid:id}}
+  else if(a==="saveL"){
+    if(!v("lt")){msg="Please enter a lesson title.";}
+    else if(L){L.title=v("lt");L.level=v("ll");L.topic=v("lp");L.description=v("ld");saveLocal();tv={v:"dash"};msg="Lesson saved."}
+    else{const n={id:"L"+Date.now().toString(36)+Math.floor(Math.random()*99),title:v("lt"),level:v("ll"),topic:v("lp"),description:v("ld"),vocabulary:[]};D.lessons.push(n);saveLocal();tv={v:"vocab",lid:n.id};msg="Lesson created. Now add vocabulary."}
+  }
+  else if(a==="dl"){D.lessons=D.lessons.filter(l=>l.id!==id);saveLocal();msg="Lesson deleted."}
+  else if(a==="mv"){tv={v:"vocab",lid:id||tv.lid}}
+  else if(a==="newV"){tv={v:"vform",lid:tv.lid,vi:-1}}
+  else if(a==="ev"){tv={v:"vform",lid:tv.lid,vi:+id}}
+  else if(a==="dv"){L.vocabulary.splice(+id,1);saveLocal();msg="Word deleted."}
+  else if(a==="saveV"){
+    const w=v("vw"),m=v("vm"),ex=v("ve");
+    if(!w||!m||!ex)msg="Please fill in the English word, meaning and example sentence.";
+    else{
+      const o={word:w,meaning:m,example:ex,distractors:[v("d1"),v("d2"),v("d3")].filter(Boolean)};
+      const warn=ex.toLowerCase().includes(w.toLowerCase())?"":" Tip: the example sentence does not contain “"+w+"”.";
+      if(tv.vi>=0){L.vocabulary[tv.vi]=o;saveLocal();tv={v:"vocab",lid:tv.lid};msg="Word saved."+warn}
+      else{L.vocabulary.push(o);saveLocal();msg="Added “"+w+"”. Add another word or press Done."+warn;T();$("vw").focus();return}
+    }
+  }
+  else if(a==="imp"){tv={v:"imp",lid:tv.lid}}
+  else if(a==="doImp"){
+    let rows=parseCSV($("csv").value);if(rows.length&&rows[0][0].trim().toLowerCase()==="word")rows.shift();
+    let add=0,skip=0;
+    rows.forEach(r=>{const[w,m,ex,...d]=r.map(x=>x.trim());
+      if(!w||!m||!ex||L.vocabulary.some(x=>norm(x.word)===norm(w))){skip++;return}
+      L.vocabulary.push({word:w,meaning:m,example:ex,distractors:d.filter(Boolean).slice(0,3)});add++});
+    if(add)saveLocal();msg=add+" words added"+(skip?", "+skip+" rows skipped (missing data or duplicate).":".");
+    if(add){tv={v:"vocab",lid:tv.lid}}
+  }
+  else if(a==="tpl"){msg=(await saveFile("vocabulary-template.csv",TPL))==="saved"?"Template saved.":"Download was blocked. Copy the format shown below instead."}
+  else if(a==="bak"){msg=(await saveFile("lessons-backup.json",JSON.stringify(D,null,1)))==="saved"?"Backup saved.":"Download was blocked in this window."}
+  else if(a==="pinc"){const p=prompt?prompt("New teacher PIN (numbers or letters):"):null;if(p){D.pin=p;saveLocal();msg="PIN changed."}}
+  else if(a==="pub"){
+    const html=buildHTML();
+    try{if(window.claude&&claude.use){const A=await claude.use("artifact");if(A){await A.publish(html);return}}}catch(er){if(er&&er.code==="conflict")return}
+    const r=await saveFile("beyond-the-textbook-games.html",html);dirty=r!=="saved";
+    msg=r==="saved"?"Updated game file saved. Paste its full code into your Google Sites Embed code to update students.":"Download was blocked here. Open the game in its own browser tab and try again."
+  }
+  T();
+});
+renderMenu();
+</script>
+</body>
+</html>
